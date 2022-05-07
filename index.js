@@ -6,6 +6,7 @@ require("./db/config")
 const server = express();
 server.use(express.json())
 
+// Rutas 
 server.use("/users", require("./users/usersRouter"))
 
 //Error 404
@@ -14,8 +15,6 @@ server.use((req, res, next)=>{
     error.status = 404
     next(error)
 })
-
-
 
 // Manejador de Errores
 server.use((error, req, res, next)=>{

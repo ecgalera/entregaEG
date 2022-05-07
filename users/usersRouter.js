@@ -1,16 +1,16 @@
 const router = require("express").Router();
-const {listAll, getOne} =require("./usersController")
+const {listAll, getOne, newOne, removeOne, editOne} =require("./usersController")
 // Importar Controllers
 
 router.get("/", listAll);
 
-router.get("/:id", getOne)
+router.get("/:id", getOne);
 
-// router.post("/register");
+router.post("/", newOne);
 
-// router.post("/login")
+router.patch("/:id", editOne )
 
-// router.delete("/:id")
+router.delete("/:id", removeOne);
 
 // router.post("/forgot-password")
 

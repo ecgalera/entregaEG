@@ -1,5 +1,5 @@
 // Importo Models 
-const {getAllUsers, getUserById} =require("./usersModel")
+const {getAllUsers, getUserById, registerNewUser, deleteUsers, editUser} =require("./usersModel")
 const notNumber = require("../utils/notNumber")
 
 // Obtengo todos los registros 
@@ -11,10 +11,35 @@ const listAll = async(req, res, next)=>{
 // Obtengo un registro por id
 const getOne = async(req, res, next)=>{
     if(notNumber(req.params.id, next)) return;
-    const dbResponse = getUserById(+req.params.id)
+    const dbResponse = await getUserById(+req.params.id)
     if(dbResponse instanceof Error) return  next(dbResponse)
     dbResponse.length ? res.status(200).json(dbResponse) : next()
 }
 
+// Regitro un nuevo usuario
+const newOne = async (req, res)=>{
+    const dbResponse = await registerNewUser({...req.body})
+    dbResponse instanceof Error ? next(dbResponse) : res.status(201)
+    .json({ message: `User ${req.body.name} created!` })
+    
+}
+// Eliminar un registro
+const removeOne = async(req, res, next)=>{
+    if(notNumber(req.params.id, next)) return;
+    const dbResponse = await deleteUsers(+req.params.id)
+    if(dbResponse instanceof Error) return  next(dbResponse)
+    dbResponse.affectedRows ? res.status(204).end(): next()
+ }
+
+//  Editar Usuario
+const editOne = async(req, res, next)=>{
+    if(notNumber(req.params.id, next)) return;
+    const dbResponse = await editUser(+req.params.id, {...req.body})
+    if(dbResponse instanceof Error) return  next(dbResponse)
+    dbResponse.affectedRows ? res.status(204).end(): next()
+}
+
+
+
 // Exporto Controllers
-module.exports = {listAll, getOne}
+module.exports = {listAll, getOne, newOne, removeOne, editOne}
