@@ -1,6 +1,8 @@
 // Importo Models 
 const {getAllUsers, getUserById, registerNewUser, deleteUsers, editUser} =require("./usersModel")
 const notNumber = require("../utils/notNumber")
+const {hashPassword, checkPassword} = require("../utils/handlePassword")
+
 
 // Obtengo todos los registros 
 const listAll = async(req, res, next)=>{
@@ -18,7 +20,8 @@ const getOne = async(req, res, next)=>{
 
 // Regitro un nuevo usuario
 const newOne = async (req, res)=>{
-    const dbResponse = await registerNewUser({...req.body})
+    const password = await hashPassword(req.body.password)
+    const dbResponse = await registerNewUser({...req.body, password})
     dbResponse instanceof Error ? next(dbResponse) : res.status(201)
     .json({ message: `User ${req.body.nombre} created!` })
     
