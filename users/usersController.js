@@ -20,7 +20,7 @@ const getOne = async(req, res, next)=>{
 const newOne = async (req, res)=>{
     const dbResponse = await registerNewUser({...req.body})
     dbResponse instanceof Error ? next(dbResponse) : res.status(201)
-    .json({ message: `User ${req.body.name} created!` })
+    .json({ message: `User ${req.body.nombre} created!` })
     
 }
 // Eliminar un registro
