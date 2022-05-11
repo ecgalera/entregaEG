@@ -5,6 +5,7 @@ require("./db/config")
 
 const server = express();
 server.use(express.json())
+server.use(express.static("storage"))
 
 // Rutas 
 server.use("/users", require("./users/usersRouter"))

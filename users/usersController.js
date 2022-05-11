@@ -20,8 +20,9 @@ const getOne = async(req, res, next)=>{
 
 // Regitro un nuevo usuario
 const newOne = async (req, res, next)=>{
+    const image = `${process.env.public_url}/${req.file.filename}`
     const password = await hashPassword(req.body.password)
-    const dbResponse = await registerNewUser({...req.body, password})
+    const dbResponse = await registerNewUser({...req.body, password, image})
     dbResponse instanceof Error ? next(dbResponse) : res.status(201)
     .json({ message: `User ${req.body.nombre} created!` })
     
