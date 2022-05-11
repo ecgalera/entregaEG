@@ -10,7 +10,7 @@ router.get("/:id", getOne);
 
 router.post("/", fileUpload.single("file"), validatiorCreateUser, newOne);
 
-router.patch("/:id", editOne )
+router.patch("/:id", fileUpload.single("file"), editOne )
 
 router.delete("/:id", removeOne);
 

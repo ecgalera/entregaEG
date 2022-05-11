@@ -38,9 +38,12 @@ const removeOne = async(req, res, next)=>{
 //  Editar Usuario
 const editOne = async(req, res, next)=>{
     if(notNumber(req.params.id, next)) return;
-    const dbResponse = await editUser(+req.params.id, {...req.body})
+    // me traje esta parte de crear un usuario image - password
+    const image = `${process.env.public_url}/${req.file.filename}`
+    // const password = await hashPassword(req.body.password)
+    const dbResponse = await editUser(+req.params.id, {...req.body, image})
     if(dbResponse instanceof Error) return  next(dbResponse)
-    dbResponse.affectedRows ? res.status(204).end(): next()
+    dbResponse.affectedRows ? res.status(200).json({message: `User ${req.body.nombre} changed!!`}): next()
 }
 
 // Login del Usuario
