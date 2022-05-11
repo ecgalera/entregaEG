@@ -1,5 +1,5 @@
 // Importo Models 
-const {getAllUsers, getUserById, registerNewUser, deleteUsers, editUser} =require("./usersModel")
+const {getAllUsers, getUserById, registerNewUser, deleteUsers, editUser, loginUser} =require("./usersModel")
 const notNumber = require("../utils/notNumber")
 const {hashPassword, checkPassword} = require("../utils/handlePassword")
 
@@ -19,7 +19,7 @@ const getOne = async(req, res, next)=>{
 }
 
 // Regitro un nuevo usuario
-const newOne = async (req, res)=>{
+const newOne = async (req, res, next)=>{
     const password = await hashPassword(req.body.password)
     const dbResponse = await registerNewUser({...req.body, password})
     dbResponse instanceof Error ? next(dbResponse) : res.status(201)
@@ -42,7 +42,20 @@ const editOne = async(req, res, next)=>{
     dbResponse.affectedRows ? res.status(204).end(): next()
 }
 
-
+// Login del Usuario
+const login = async(req, res, next)=>{
+    const dbResponse = await loginUser(req.body.email)
+    if(!dbResponse.length) return next()
+    const passwordMatch = await checkPassword(req.body.password, dbResponse[0].password)
+    if(passwordMatch){
+        res.status(200).json({message: "Authorized"})
+    }else{
+        let error = new Error
+        error.message = "Unauthorized"
+        error.status = 401
+        next(error)
+    }
+}
 
 // Exporto Controllers
-module.exports = {listAll, getOne, newOne, removeOne, editOne}
+module.exports = {listAll, getOne, newOne, removeOne, editOne, login}

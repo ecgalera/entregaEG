@@ -1,4 +1,5 @@
 // Importar config.js de db
+const Query = require("mysql/lib/protocol/sequences/Query")
 const pool = require("../db/config")
 
 // get All Users 
@@ -54,9 +55,18 @@ const editUser = async (id, user)=>{
         return error
     }
 }
-
+// Login
+const loginUser = async (email)=>{
+    const query = `SELECT * FROM users WHERE email = "${email}"`
+    try {
+        return await pool.query(query)
+    } catch (error) {
+        error.message = error.code
+        return error
+    }
+}
 
 
 
 // Exportar a Controllers
-module.exports = {getAllUsers, getUserById, registerNewUser, deleteUsers, editUser}
+module.exports = {getAllUsers, getUserById, registerNewUser, deleteUsers, editUser, loginUser}
