@@ -1,5 +1,4 @@
 // Importar config.js de db
-const Query = require("mysql/lib/protocol/sequences/Query")
 const pool = require("../db/config")
 
 // get All Users 

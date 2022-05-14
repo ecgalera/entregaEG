@@ -1,7 +1,8 @@
 // Importo Models 
-const {getAllUsers, getUserById, registerNewUser, deleteUsers, editUser, loginUser} =require("./usersModel")
+const {getAllUsers, getUserById, registerNewUser, deleteUsers, editUser, loginUser} = require("./usersModel")
 const notNumber = require("../utils/notNumber")
 const {hashPassword, checkPassword} = require("../utils/handlePassword")
+const {tokenSign} = require("../utils/handleJWT")
 
 
 // Obtengo todos los registros 
@@ -20,13 +21,22 @@ const getOne = async(req, res, next)=>{
 
 // Regitro un nuevo usuario
 const newOne = async (req, res, next)=>{
+
     const image = `${process.env.public_url}/${req.file.filename}`
     const password = await hashPassword(req.body.password)
     const dbResponse = await registerNewUser({...req.body, password, image})
-    dbResponse instanceof Error ? next(dbResponse) : res.status(201)
-    .json({ message: `User ${req.body.nombre} created!` })
-    
+    if(dbResponse instanceof Error) return next(dbResponse) 
+    const user = {
+        id: req.body.id,
+        nombre: req.body.nombre,
+        }
+    const tokenData ={
+        token: await tokenSign(user, "2h"),
+        user: user
+    }
+    res.status(201).json({message: `User ${req.body.nombre} created!! `, JWT: tokenData })
 }
+
 // Eliminar un registro
 const removeOne = async(req, res, next)=>{
     if(notNumber(req.params.id, next)) return;
@@ -40,8 +50,8 @@ const editOne = async(req, res, next)=>{
     if(notNumber(req.params.id, next)) return;
     // me traje esta parte de crear un usuario image - password
     const image = `${process.env.public_url}/${req.file.filename}`
-    // const password = await hashPassword(req.body.password)
-    const dbResponse = await editUser(+req.params.id, {...req.body, image})
+    const password = await hashPassword(req.body.password)
+    const dbResponse = await editUser(+req.params.id, {...req.body,password, image})
     if(dbResponse instanceof Error) return  next(dbResponse)
     dbResponse.affectedRows ? res.status(200).json({message: `User ${req.body.nombre} changed!!`}): next()
 }
@@ -52,7 +62,16 @@ const login = async(req, res, next)=>{
     if(!dbResponse.length) return next()
     const passwordMatch = await checkPassword(req.body.password, dbResponse[0].password)
     if(passwordMatch){
-        res.status(200).json({message: "Authorized"})
+            const user= {   id: dbResponse[0].id,
+                            nombre: dbResponse[0].nombre,
+                            email: dbResponse[0].email
+                        }
+        const tokenData ={
+            token: await tokenSign(user, "2h"),
+            user: user
+        }
+
+        res.status(200).json({message: "Authorized", JWT: tokenData})
     }else{
         let error = new Error
         error.message = "Unauthorized"
@@ -63,3 +82,4 @@ const login = async(req, res, next)=>{
 
 // Exporto Controllers
 module.exports = {listAll, getOne, newOne, removeOne, editOne, login}
+

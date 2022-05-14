@@ -5,6 +5,7 @@ require("./db/config")
 
 const server = express();
 server.use(express.json())
+// para acceder a la imagen
 server.use(express.static("storage"))
 
 // Rutas 
