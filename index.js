@@ -2,14 +2,18 @@ const express = require ("express");
 require("dotenv").config()
 const PORT = process.env.PORT || 3000;
 require("./db/config")
+const cors = require("cors")
 
 const server = express();
 server.use(express.json())
 // para acceder a la imagen
 server.use(express.static("storage"))
+// para que no me bloquee cuando uso la api con otro recurso en otro servidor
+server.use(cors())
 
 // Rutas 
 server.use("/users", require("./users/usersRouter"))
+server.use("/posts", require("./posts/postsRouter"))
 
 //Error 404
 server.use((req, res, next)=>{
