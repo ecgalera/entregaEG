@@ -1,6 +1,6 @@
 const router = require("express").Router();
 const {listAll, getOne, newOne, removeOne, editOne, login, forgot , reset, saveNewPass} =require("./usersController")
-const {validatiorCreateUser, validatorResetPassword} =require("../validators/users")
+const {validatiorCreateUser, validationResetPassword} =require("../validators/users")
 const fileUpload = require("../utils/handleStorage");
 
 
@@ -24,7 +24,7 @@ router.post("/login", login)
 //  get de magic link
 router.get("/reset/:token", reset)
 
-router.post("/reset/:token", validatorResetPassword, saveNewPass)
+router.post("/reset/:token", validationResetPassword, saveNewPass)
 
 // router.post("/reset/:token")
 
