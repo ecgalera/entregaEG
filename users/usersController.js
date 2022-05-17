@@ -2,7 +2,7 @@
 const {getAllUsers, getUserById, registerNewUser, deleteUsers, editUser, loginUser} = require("./usersModel")
 const notNumber = require("../utils/notNumber")
 const {hashPassword, checkPassword} = require("../utils/handlePassword")
-const {tokenSign} = require("../utils/handleJWT")
+const {tokenSign, tokenVerify} = require("../utils/handleJWT")
 
 
 // Obtengo todos los registros 
@@ -79,7 +79,65 @@ const login = async(req, res, next)=>{
         next(error)
     }
 }
+// Creamos el transporte de nodemailer para el servicio de mailtrap
+const nodemailer = require("nodemailer")
+var transport = nodemailer.createTransport({
+    host: "smtp.mailtrap.io",
+    port: 2525,
+    auth: {
+      user: process.env.mail_user,
+      pass: process.env.mail_pass
+    }
+  });
+
+
+
+  // Forgot Password (a esta ruta va a llegar reciviendo el email)
+
+const forgot = async (req, res, next)=>{
+    const dbResponse = await loginUser(req.body.email)
+    if(!dbResponse.length) return next()
+    const user = {
+        id: dbResponse[0].id,
+        nombre: dbResponse[0].nombre,
+        email: dbResponse[0].email
+    }
+    const token = await tokenSign(user, "15m")
+    const link = `${public_url}/users/reset/${token}`
+    
+    let mailDetails = {
+        from: "tech.support@splinter",
+        to: user.email,
+        subject: "Password Recovery with magic link",
+        html: `<h2> Password Recovery Service</h2>
+        <p> To reset your password, please click the link and follow instructions</p>
+        <a href= "${link}"> click to recover your password</a> `
+    }
+
+    transport.sendMail(mailDetails, (err, data)=>{
+        if(error){
+            error.message = "Internal Server Error"
+            res.next(error)
+        }else{
+            res.status(200).json({message: `Hi ${user.nombre}, we ve sent an email instructions to ${user.email}... Hurry up!`})
+        }
+    })
+
+}
+
+// Reset password
+const reset = async(req, res, next)=>{
+    const {token}= req.params
+    const tokenStatus = await tokenVerify(token)
+    if(tokenStatus instanceof Error){
+        res.send(tokenStatus)
+    }else{
+        res.render("reset", {tokenStatus, token})
+    }
+}
+
+const saveNewPass = ()=>{}
 
 // Exporto Controllers
-module.exports = {listAll, getOne, newOne, removeOne, editOne, login}
+module.exports = {listAll, getOne, newOne, removeOne, editOne, login, forgot, reset, saveNewPass}
 

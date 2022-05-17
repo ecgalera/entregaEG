@@ -30,4 +30,31 @@ const validatiorCreateUser =[
     }
 ]
 
-module.exports = {validatiorCreateUser}
+const validationResetPassword = [
+    check("password_1")
+        .exists()
+        .notEmpty().withMessage("Password cannot be empty")
+        .isLength({min:8, max:25}).withMessage("Caracteres minmos:2 y maximo:90")
+        .trim(),
+    check("password_2")
+        .custom(async (password_2,{req})=>{
+            const password_1 = req.body.password_1
+            if(password_1 !== password_2){
+                throw new error("Password must be identical")
+            }
+        }),
+        (req, res, next)=>{
+            const token = req.params.token
+            const error = validationResult(req)
+            if(!error.isEmpty()){
+                const arrWarnings = errors.array()
+                res.render("reset", {arrWarnings, token})
+            }else{
+                return next()
+            }
+        }
+
+]
+
+
+module.exports = {validatiorCreateUser, validationResetPassword }

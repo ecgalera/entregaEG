@@ -1,7 +1,8 @@
 const router = require("express").Router();
-const {listAll, getOne, newOne, removeOne, editOne, login} =require("./usersController")
-const {validatiorCreateUser} =require("../validators/users")
-const fileUpload = require("../utils/handleStorage")
+const {listAll, getOne, newOne, removeOne, editOne, login, forgot , reset, saveNewPass} =require("./usersController")
+const {validatiorCreateUser, validatorResetPassword} =require("../validators/users")
+const fileUpload = require("../utils/handleStorage");
+
 
 // Importar Controllers
 
@@ -17,7 +18,13 @@ router.delete("/:id", removeOne);
 
 router.post("/login", login)
 
-// router.get("/reset/:token")
+// Forgot password
+ router.post("/forgot-password", forgot)
+
+//  get de magic link
+router.get("/reset/:token", reset)
+
+router.post("/reset/:token", validatorResetPassword, saveNewPass)
 
 // router.post("/reset/:token")
 

@@ -3,11 +3,22 @@ require("dotenv").config()
 const PORT = process.env.PORT
 require("./db/config")
 const cors = require("cors")
+const hbs = require("express-handlebars")
+const path = require("path")
 
 const server = express();
 server.use(express.json())
 // para acceder a la imagen
 server.use(express.static("storage"))
+
+// Bootstrap static files
+server.use("/css", express.static(path.join(__dirname, "node_modules/bootstrap/dist/css")))
+server.use("/js", express.static(path.join(__dirname, "node_modules/bootstrap/dist/js")))
+//  Handlebars
+server.set("view engine", "hbs")
+server.set("views", path.join(__dirname, "views"))
+server.engine("hbs", hbs.engine({extname: "hbs"}))
+
 // para que no me bloquee cuando uso la api con otro recurso en otro servidor
 server.use(cors())
 
